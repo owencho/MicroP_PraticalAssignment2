@@ -100,7 +100,7 @@ int main(void)
 	  enableTimer4();
 	  timerSetControlRegister(timer4,(ARR_ENABLE | TIMER_UP_COUNT |
 			  	  	  	  	  	  	  TIMER_ONE_PULSE_DISABLE |TIMER_COUNTER_ENABLE |
-									  T1_CH1_SELECT| MASTER_MODE_RESET|OC3_OUT_LOW));
+									  T1_CH1_SELECT| MASTER_MODE_RESET));
 	  //ARR reg is buffered
 	  //Up count
 	  //one pulse mode disabled
@@ -112,7 +112,7 @@ int main(void)
 	  //Slave mode selected as gated mode
 	  //slave mode was triggered on t1
 	  timerSetCompareCaptureModeRegister(timer4,(CC1_INPUT_IC1_MAP_TI1 | IC1_NO_PRESCALE |
-			  	  	  	  	  	  	  	  	  	  IC1_NO_FILER| CC3_OUTPUT |OC3_MODE_PWM_M1|OC3_FAST_ENABLE));
+			  	  	  	  	  	  	  	  	  	  IC1_NO_FILER| CC3_OUTPUT |OC3_MODE_PWM_M1));
 	  // CC1 channel is configured as input, IC1 is mapped on TI1
 	  // IC1 no prescaler
 	  // IC1 no filter
