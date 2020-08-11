@@ -60,6 +60,7 @@ volatile int adcValue;
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
 void configureTimer3();
+void configureUart5();
 void configureAdc1();
 /* USER CODE END PFP */
 
@@ -81,7 +82,7 @@ int main(void)
   /* MCU Configuration--------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  HAL_Init();
+   HAL_Init();
 
   /* USER CODE BEGIN Init */
 
@@ -138,7 +139,8 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-	  usartSend(uart5,1234);
+	  char c = 'A';
+	  usartSend(uart5,123);
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -221,14 +223,19 @@ void configureTimer3(){
 
 void configureAdc1(){
 	  enableAdc1();
-	  adcSetADCResolution(adc1,ADC_RES_12_BIT);
+	  //enable interrupt
 	  adcEnableEOCInterrupt(adc1);
+	  adcSetScanMode(adc1,ENABLE_MODE);
+	  nvicEnableInterrupt(18);
+
+	  adcSetADCResolution(adc1,ADC_RES_12_BIT);
 	  adcSetRightDataAlignment(adc1);
 	  adcSetContinousConvertion(adc1);
 	  adcSetSamplingTime(adc1,CHANNEL_1,ADC_SAMP_3_CYCLES);
 	  adcSetExternalTriggerRegularChannel(adc1,T_DETECTION_RISING);
 	  adcSetSingleSequenceRegister(adc1,CHANNEL_1,1);
 	  adcSetExternalEventSelectForRegularGroup(adc1,T3_TRGO);
+	  adcEnableADCConversion(adc1);
 	  adcSetStartRegularConversion(adc1);
 }
 
@@ -240,6 +247,8 @@ void configureUart5(){
 	  usartEnableParityControl(uart5);
 	  setUsartParityMode(uart5,ODD_PARITY);
 	  usartSetStopBit(uart5,STOP_BIT_2);
+	  usartEnableTransmission(uart5);
+	  enableUsart(uart5);
 }
 
 /* USER CODE END 4 */

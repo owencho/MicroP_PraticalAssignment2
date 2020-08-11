@@ -50,7 +50,7 @@ extern volatile int adcValue;
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN PFP */
-
+void ADC_IRQHandler(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -201,13 +201,11 @@ void SysTick_Handler(void)
 /******************************************************************************/
 
 /* USER CODE BEGIN 1 */
-/*
-void ADC_IRQHandler(){
-	disableIRQ();
+
+void ADC_IRQHandler(void){
 	int count=0;
 	adcValue = adcReadRegularDataReg(adc1);
-	enableIRQ();
 }
-*/
+
 /* USER CODE END 1 */
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
