@@ -20,15 +20,20 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "Usart.h"
+#include "Nvic.h"
 #include "Irq.h"
 #include "stm32f4xx_it.h"
 #include "Adc.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-extern int adcTurn;
+extern volatile int adcTurn;
 extern volatile int sharedAverageAdcValue;
 int adcValue;
 int newAdcValue;
+extern volatile int usartTurn;
+extern UsartRegs * sharedUsart;
+extern char * messageToSend;
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -49,6 +54,7 @@ int newAdcValue;
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
 int count = 0;
+int charCount = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -205,7 +211,17 @@ void SysTick_Handler(void)
 
 /* USER CODE BEGIN 1 */
 void UART5_IRQHandler(void){
-
+	if(usartTurn){
+ 		   if(messageToSend[charCount] != '\0'){
+ 			   usartClearTcFlag(sharedUsart);
+			   usartSend(sharedUsart,messageToSend[charCount]);
+			   charCount = charCount + 1;
+		   }else{
+			   usartDisableInterrupt(uart5,TRANS_COMPLETE);
+			   charCount = 0;
+			   usartTurn = 0;
+		   }
+	}
 }
 void ADC_IRQHandler(void){
 	if(adcTurn){
@@ -216,6 +232,7 @@ void ADC_IRQHandler(void){
 			adcValue = adcValue >> 6;
 			count = 0;
 			if(adcValue != sharedAverageAdcValue){
+				adcDisableEOCInterrupt(adc1);
 				sharedAverageAdcValue = adcValue;
 				adcTurn = 0;
 			}

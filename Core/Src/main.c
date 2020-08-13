@@ -31,6 +31,7 @@
 #include "Adc.h"
 #include "Irq.h"
 #include "Rcc.h"
+#include "Serial.h"
 #include "Timer.h"
 #include "TimerBase.h"
 #include"TimerMacro.h"
@@ -59,7 +60,8 @@
 
 /* USER CODE BEGIN PV */
 volatile int sharedAverageAdcValue;
-int adcTurn;
+volatile int adcTurn;
+extern volatile int usartTurn;
 volatile float voltageValue;
 /* USER CODE END PV */
 
@@ -74,7 +76,7 @@ void configureAdc1();
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-char *msgOut;
+
 /* USER CODE END 0 */
 
 /**
@@ -124,23 +126,29 @@ int main(void)
   gpioSetPinSpeed(gpioA,PIN_1,HIGH_SPEED);
 
   enableGpio(PORT_C);
-  gpioSetMode(gpioC, PIN_12, GPIO_ALT);
+  gpioSetMode(gpioC, PIN_12, GPIO_ALT);  //set GpioC as alternate mode
   gpioSetPinSpeed(gpioC,PIN_12,HIGH_SPEED);
-  gpioSetAlternateFunction(gpioC, PIN_12 ,AF8); //set PC12 as UART5 tx
 
   enableGpio(PORT_D);
-  gpioSetMode(gpioD, PIN_2, GPIO_ALT);
+  gpioSetMode(gpioD, PIN_2, GPIO_ALT);  //set GpioC as alternate mode
   gpioSetPinSpeed(gpioD,PIN_2,HIGH_SPEED);
-  gpioSetAlternateFunction(gpioD, PIN_2 ,AF8); //set PD2 as UART5 rx
+
+
+  //set alternate function
+  gpioSetAlternateFunction(gpioC ,PIN_12 ,AF8); //set PC12 as USART5_TX
+  gpioSetAlternateFunction(gpioD ,PIN_2 ,AF8); //set PD2 as USART5_RX
+
+
   configureTimer3();
-  configureAdc1();
+  //configureAdc1();
   configureUart5();
 
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
   /* USER CODE BEGIN 2 */
-  adcTurn = 1;
+  adcTurn = 0;
+  usartTurn =0;
   enableIRQ();
   /* USER CODE END 2 */
 
@@ -148,14 +156,34 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    /* USER CODE END WHILE */
+	  if(!usartTurn){
+		  serialSend(uart5,"abc");
+	  }
+	  /*
 	  if(!adcTurn){
+		  disableIRQ();
+		  voltageValue = calculateADC(sharedAverageAdcValue);
+
+		  adcEnableEOCInterrupt(adc1);
+		  //adcTurn = 1;
+		  enableIRQ();
+	 	  }
+	  //disableIRQ();
+
+	 // enableIRQ();
+
+    /* USER CODE END WHILE */
+	  /*
+	  if(!adcTurn){
+		  disableIRQ();
 		  voltageValue = calculateADC(sharedAverageAdcValue);
 		  //asprintf(&msgOut, "Voltage is %. 2f", voltageValue);
+
 		  //usartSend(uart5,msgOut);
 		  adcTurn = 1;
+		  enableIRQ();
 	  }
-
+	*/
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -189,7 +217,7 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  /** Activate the Over-Drive mode 
+  /** Activate the Over-Drive mode
   */
   if (HAL_PWREx_EnableOverDrive() != HAL_OK)
   {
@@ -211,6 +239,7 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+
 float calculateADC(int adcValue){
 	float value;
 	value = adcValue * 373;
@@ -263,7 +292,8 @@ void configureAdc1(){
 void configureUart5(){
 	  enableUART5();
 	  nvicEnableInterrupt(53);
-	  usartEnableInterrupt(uart5,TRANS_COMPLETE);
+	  //usartEnableInterrupt(uart5,TRANS_COMPLETE);
+	  //usartClearTcFlag(uart5);
 	  setUsartOversamplingMode(uart5,OVER_16);
 	  usartSetBaudRate(uart5,115200);
 	  setUsartWordLength(uart5,DATA_8_BITS);
