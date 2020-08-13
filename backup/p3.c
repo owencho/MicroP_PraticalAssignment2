@@ -25,8 +25,10 @@
 /* USER CODE BEGIN Includes */
 #include "Gpio.h"
 #include "Nvic.h"
+#include "Usart.h"
 #include "Syscfg.h"
 #include "Exti.h"
+#include "Adc.h"
 #include "Rcc.h"
 #include "Timer.h"
 #include "TimerBase.h"
@@ -51,13 +53,15 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-void configureTimer4();
+volatile int adcValue;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
-
+void configureTimer3();
+void configureUart5();
+void configureAdc1();
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -78,7 +82,7 @@ int main(void)
   /* MCU Configuration--------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  HAL_Init();
+   HAL_Init();
 
   /* USER CODE BEGIN Init */
 
@@ -97,8 +101,31 @@ int main(void)
 	  gpioSetPinSpeed(gpioB, PIN_8,HIGH_SPEED);
 	  gpioSetAlternateFunction(gpioB, PIN_8 ,AF2); //set PB8 as TIM4_CH3
 
-	  configureTimer4();
+	  gpioSetMode(gpioB, PIN_0, GPIO_ALT);
+	  gpioSetPinSpeed(gpioB, PIN_0,HIGH_SPEED);
+	  gpioSetAlternateFunction(gpioB, PIN_0 ,AF2); //set PB0 as TIM3_CH4
 
+	  gpioSetMode(gpioB, PIN_1, GPIO_ALT);
+	  gpioSetPinSpeed(gpioB, PIN_1,HIGH_SPEED);
+	  gpioSetAlternateFunction(gpioB, PIN_1 ,AF2); //set PB1 as TIM3_CH4
+
+	  // set pin 1 as input of the signal
+	  enableGpioA();
+	  gpioSetMode(gpioA, PIN_1, GPIO_ANALOG);
+	  gpioSetPinSpeed(gpioA,PIN_1,HIGH_SPEED);
+
+  	  enableGpio(PORT_C);
+  	  gpioSetMode(gpioC, PIN_12, GPIO_ALT);
+  	  gpioSetPinSpeed(gpioC,PIN_12,HIGH_SPEED);
+  	  gpioSetAlternateFunction(gpioC, PIN_12 ,AF8); //set PC12 as UART5 tx
+
+  	  enableGpio(PORT_D);
+	  gpioSetMode(gpioD, PIN_2, GPIO_ALT);
+	  gpioSetPinSpeed(gpioD,PIN_2,HIGH_SPEED);
+	  gpioSetAlternateFunction(gpioD, PIN_2 ,AF8); //set PD2 as UART5 rx
+	  configureTimer3();
+	  configureAdc1();
+	  configureUart5();
 
   /* USER CODE END SysInit */
 
@@ -112,7 +139,8 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-
+	  char c = 'A';
+	  usartSend(uart5,123);
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -168,38 +196,61 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-void configureTimer4(){
-	  enableTimer4();
-	  timerSetControlRegister(timer4,(ARR_ENABLE | TIMER_UP_COUNT |
+
+void configureTimer3(){
+	  enableTimer3();
+	  timerSetControlRegister(timer3,(ARR_ENABLE | TIMER_UP_COUNT |
 			  	  	  	  	  	  	  TIMER_ONE_PULSE_DISABLE |TIMER_COUNTER_ENABLE |
-									  T1_CH1_SELECT| MASTER_MODE_RESET|OC3_OUT_LOW));
+									  T1_CH1_SELECT| MASTER_MODE_COMP_OC3REF|OC3_OUT_LOW));
 	  //ARR reg is buffered
 	  //Up count
 	  //one pulse mode disabled
 	  //counter enabled
 	  //CH1 is connected to T1
-	  // Master Mode Reset
-	  timerSetSlaveMasterRegister(timer4,SLAVE_MODE| SMS_GATED_M | TRIGGER_FIL_T1);
-	  //Trigger was selected TI1FP1
-	  //Slave mode selected as gated mode
-	  //slave mode was triggered on t1
-	  timerSetCompareCaptureModeRegister(timer4,(CC1_INPUT_IC1_MAP_TI1 | IC1_NO_PRESCALE |
-			  	  	  	  	  	  	  	  	  	  IC1_NO_FILER| CC3_OUTPUT |OC3_MODE_PWM_M1|OC3_FAST_ENABLE));
-	  // CC1 channel is configured as input, IC1 is mapped on TI1
-	  // IC1 no prescaler
-	  // IC1 no filter
-	  // CC3 channel is configured as PWM mode 1 output
-	  timerSetCompareCaptureEnableRegister(timer4,(CC1_CAPTURE_ENABLED|CC1_CAP_FALLING_EDGE|
-			  	  	  	  	  	  	  	  	  	   OC3_ENABLE|OC3_ACTIVEHIGH));
-	  //capture enabled for CH1
-	  // trigger on falling edge
-	  //output for CH3
+	  // Master Mode is routed to Output 3
+	  timerSetSlaveMasterRegister(timer3,SLAVE_MODE| SMS_DISABLED | TRIGGER_FIL_T1);
+	  //slave mode disabled
+	  timerSetCompareCaptureModeRegister(timer3,(CC3_OUTPUT |OC3_MODE_TOGGLE));
+	  // CC3 channel is configured as toggle mode
 
-	  //to generate PWM with 6khz with 75% duty cycle
-	  timerWritePrescaler(timer4,0);
-	  timerWriteAutoReloadReg(timer4, 15000);
-	  timerWriteCapComReg3(timer4 , 11250);
+	  timerSetCompareCaptureEnableRegister(timer3,(OC3_ENABLE|OC3_ACTIVELOW));
+
+
+	  //to generate 2khz with 50% duty cycle
+	  timerWritePrescaler(timer3,0);
+	  timerWriteAutoReloadReg(timer3, 22500);
 }
+
+void configureAdc1(){
+	  enableAdc1();
+	  //enable interrupt
+	  adcEnableEOCInterrupt(adc1);
+	  adcSetScanMode(adc1,ENABLE_MODE);
+	  nvicEnableInterrupt(18);
+
+	  adcSetADCResolution(adc1,ADC_RES_12_BIT);
+	  adcSetRightDataAlignment(adc1);
+	  adcSetContinousConvertion(adc1);
+	  adcSetSamplingTime(adc1,CHANNEL_1,ADC_SAMP_3_CYCLES);
+	  adcSetExternalTriggerRegularChannel(adc1,T_DETECTION_RISING);
+	  adcSetSingleSequenceRegister(adc1,CHANNEL_1,1);
+	  adcSetExternalEventSelectForRegularGroup(adc1,T3_TRGO);
+	  adcEnableADCConversion(adc1);
+	  adcSetStartRegularConversion(adc1);
+}
+
+void configureUart5(){
+	  enableUART5();
+	  setUsartOversamplingMode(uart5,OVER_16);
+	  usartSetBaudRate(uart5,115200);
+	  setUsartWordLength(uart5,DATA_8_BITS);
+	  usartEnableParityControl(uart5);
+	  setUsartParityMode(uart5,ODD_PARITY);
+	  usartSetStopBit(uart5,STOP_BIT_2);
+	  usartEnableTransmission(uart5);
+	  enableUsart(uart5);
+}
+
 /* USER CODE END 4 */
 
 /**

@@ -29,11 +29,16 @@
 #include "Syscfg.h"
 #include "Exti.h"
 #include "Adc.h"
+#include "Irq.h"
 #include "Rcc.h"
 #include "Timer.h"
 #include "TimerBase.h"
 #include"TimerMacro.h"
 #include "Common.h"
+#include <stdio.h>
+#include <stdint.h>
+#include <malloc.h>
+#include <stdarg.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -53,12 +58,15 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-volatile int adcValue;
+volatile int sharedAverageAdcValue;
+int adcTurn;
+volatile float voltageValue;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
+float calculateADC(int adcValue);
 void configureTimer3();
 void configureUart5();
 void configureAdc1();
@@ -66,7 +74,7 @@ void configureAdc1();
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+char *msgOut;
 /* USER CODE END 0 */
 
 /**
@@ -92,46 +100,48 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-  	  enableGpio(PORT_B);
-  	  gpioSetMode(gpioB, PIN_6, GPIO_ALT);
-  	  gpioSetPinSpeed(gpioB,PIN_6,HIGH_SPEED);
-  	  gpioSetAlternateFunction(gpioB, PIN_6 ,AF2); //set PB6 as TIM4_CH1
+  disableIRQ();
+  enableGpio(PORT_B);
+  gpioSetMode(gpioB, PIN_6, GPIO_ALT);
+  gpioSetPinSpeed(gpioB,PIN_6,HIGH_SPEED);
+  gpioSetAlternateFunction(gpioB, PIN_6 ,AF2); //set PB6 as TIM4_CH1
 
-	  gpioSetMode(gpioB, PIN_8, GPIO_ALT);
-	  gpioSetPinSpeed(gpioB, PIN_8,HIGH_SPEED);
-	  gpioSetAlternateFunction(gpioB, PIN_8 ,AF2); //set PB8 as TIM4_CH3
+  gpioSetMode(gpioB, PIN_8, GPIO_ALT);
+  gpioSetPinSpeed(gpioB, PIN_8,HIGH_SPEED);
+  gpioSetAlternateFunction(gpioB, PIN_8 ,AF2); //set PB8 as TIM4_CH3
 
-	  gpioSetMode(gpioB, PIN_0, GPIO_ALT);
-	  gpioSetPinSpeed(gpioB, PIN_0,HIGH_SPEED);
-	  gpioSetAlternateFunction(gpioB, PIN_0 ,AF2); //set PB0 as TIM3_CH4
+  gpioSetMode(gpioB, PIN_0, GPIO_ALT);
+  gpioSetPinSpeed(gpioB, PIN_0,HIGH_SPEED);
+  gpioSetAlternateFunction(gpioB, PIN_0 ,AF2); //set PB0 as TIM3_CH4
 
-	  gpioSetMode(gpioB, PIN_1, GPIO_ALT);
-	  gpioSetPinSpeed(gpioB, PIN_1,HIGH_SPEED);
-	  gpioSetAlternateFunction(gpioB, PIN_1 ,AF2); //set PB1 as TIM3_CH4
+  gpioSetMode(gpioB, PIN_1, GPIO_ALT);
+  gpioSetPinSpeed(gpioB, PIN_1,HIGH_SPEED);
+  gpioSetAlternateFunction(gpioB, PIN_1 ,AF2); //set PB1 as TIM3_CH4
 
-	  // set pin 1 as input of the signal
-	  enableGpioA();
-	  gpioSetMode(gpioA, PIN_1, GPIO_ANALOG);
-	  gpioSetPinSpeed(gpioA,PIN_1,HIGH_SPEED);
+  // set pin 1 as input of the signal
+  enableGpioA();
+  gpioSetMode(gpioA, PIN_1, GPIO_ANALOG);
+  gpioSetPinSpeed(gpioA,PIN_1,HIGH_SPEED);
 
-  	  enableGpio(PORT_C);
-  	  gpioSetMode(gpioC, PIN_12, GPIO_ALT);
-  	  gpioSetPinSpeed(gpioC,PIN_12,HIGH_SPEED);
-  	  gpioSetAlternateFunction(gpioC, PIN_12 ,AF8); //set PC12 as UART5 tx
+  enableGpio(PORT_C);
+  gpioSetMode(gpioC, PIN_12, GPIO_ALT);
+  gpioSetPinSpeed(gpioC,PIN_12,HIGH_SPEED);
+  gpioSetAlternateFunction(gpioC, PIN_12 ,AF8); //set PC12 as UART5 tx
 
-  	  enableGpio(PORT_D);
-	  gpioSetMode(gpioD, PIN_2, GPIO_ALT);
-	  gpioSetPinSpeed(gpioD,PIN_2,HIGH_SPEED);
-	  gpioSetAlternateFunction(gpioD, PIN_2 ,AF8); //set PD2 as UART5 rx
-	  configureTimer3();
-	  configureAdc1();
-	  configureUart5();
+  enableGpio(PORT_D);
+  gpioSetMode(gpioD, PIN_2, GPIO_ALT);
+  gpioSetPinSpeed(gpioD,PIN_2,HIGH_SPEED);
+  gpioSetAlternateFunction(gpioD, PIN_2 ,AF8); //set PD2 as UART5 rx
+  configureTimer3();
+  configureAdc1();
+  configureUart5();
 
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
   /* USER CODE BEGIN 2 */
-
+  adcTurn = 1;
+  enableIRQ();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -139,8 +149,13 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-	  char c = 'A';
-	  usartSend(uart5,123);
+	  if(!adcTurn){
+		  voltageValue = calculateADC(sharedAverageAdcValue);
+		  //asprintf(&msgOut, "Voltage is %. 2f", voltageValue);
+		  //usartSend(uart5,msgOut);
+		  adcTurn = 1;
+	  }
+
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -196,7 +211,12 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-
+float calculateADC(int adcValue){
+	float value;
+	value = adcValue * 373;
+	value = value / 500000;
+	return value;
+}
 void configureTimer3(){
 	  enableTimer3();
 	  timerSetControlRegister(timer3,(ARR_ENABLE | TIMER_UP_COUNT |
@@ -241,6 +261,8 @@ void configureAdc1(){
 
 void configureUart5(){
 	  enableUART5();
+	  nvicEnableInterrupt(53);
+	  usartEnableInterrupt(uart5,TRANS_COMPLETE);
 	  setUsartOversamplingMode(uart5,OVER_16);
 	  usartSetBaudRate(uart5,115200);
 	  setUsartWordLength(uart5,DATA_8_BITS);

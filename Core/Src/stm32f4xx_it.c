@@ -25,7 +25,10 @@
 #include "Adc.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-extern volatile int adcValue;
+extern int adcTurn;
+extern volatile int sharedAverageAdcValue;
+int adcValue;
+int newAdcValue;
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -45,7 +48,7 @@ extern volatile int adcValue;
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
-
+int count = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -201,10 +204,25 @@ void SysTick_Handler(void)
 /******************************************************************************/
 
 /* USER CODE BEGIN 1 */
+void UART5_IRQHandler(void){
 
+}
 void ADC_IRQHandler(void){
-	int count=0;
-	adcValue = adcReadRegularDataReg(adc1);
+	if(adcTurn){
+		newAdcValue = adcReadRegularDataReg(adc1);
+		adcValue = adcValue + newAdcValue;
+		count++;
+		if(count == 64){
+			adcValue = adcValue >> 6;
+			count = 0;
+			if(adcValue != sharedAverageAdcValue){
+				sharedAverageAdcValue = adcValue;
+				adcTurn = 0;
+			}
+			adcValue = 0;
+		}
+	}
+
 }
 
 /* USER CODE END 1 */

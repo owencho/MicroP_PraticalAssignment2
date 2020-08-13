@@ -196,7 +196,7 @@ void configureTimer4(){
 	  // IC1 no filter
 	  // CC3 channel is configured as PWM mode 1 output
 	  timerSetCompareCaptureEnableRegister(timer4,(CC1_CAPTURE_ENABLED|CC1_CAP_FALLING_EDGE|
-			  	  	  	  	  	  	  	  	  	   OC3_ENABLE|OC3_ACTIVELOW));
+			  	  	  	  	  	  	  	  	  	   OC3_ENABLE|OC3_ACTIVEHIGH));
 	  //capture enabled for CH1
 	  // trigger on falling edge
 	  //output for CH3
@@ -204,7 +204,7 @@ void configureTimer4(){
 	  //to generate PWM with 6khz with 75% duty cycle
 	  timerWritePrescaler(timer4,0);
 	  timerWriteAutoReloadReg(timer4, 14999);
-	  timerWriteCapComReg3(timer4 , 3750);
+	  timerWriteCapComReg3(timer4 , 11250);
 }
 
 void configureTimer3(){
