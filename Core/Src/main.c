@@ -222,6 +222,7 @@ void configureTimer3(){
 	  timerSetControlRegister(timer3,(ARR_ENABLE | TIMER_UP_COUNT |
 			  	  	  	  	  	  	  TIMER_ONE_PULSE_DISABLE |TIMER_COUNTER_ENABLE |
 									  T1_CH1_SELECT| MASTER_MODE_COMP_OC3REF|OC3_OUT_LOW));
+	  //ARR disable
 	  //ARR reg is buffered
 	  //Up count
 	  //one pulse mode disabled
