@@ -63,7 +63,10 @@ void configureTimer4();
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+volatile int sharedAverageAdcValue;
+int adcTurn;
+extern int usartTurn;
+volatile float voltageValue;
 /* USER CODE END 0 */
 
 /**
@@ -152,7 +155,7 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  /** Activate the Over-Drive mode 
+  /** Activate the Over-Drive mode
   */
   if (HAL_PWREx_EnableOverDrive() != HAL_OK)
   {
