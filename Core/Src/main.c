@@ -62,7 +62,7 @@
 volatile int sharedAverageAdcValue;
 volatile int adcTurn;
 extern volatile int usartTurn;
-volatile float voltageValue;
+float voltageValue;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -140,7 +140,7 @@ int main(void)
 
 
   configureTimer3();
-  //configureAdc1();
+  configureAdc1();
   configureUart5();
 
   /* USER CODE END SysInit */
@@ -156,16 +156,15 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  if(!usartTurn){
-		  serialSend(uart5,"abc");
-	  }
-	  /*
+
 	  if(!adcTurn){
 		  disableIRQ();
 		  voltageValue = calculateADC(sharedAverageAdcValue);
-
+		  if(!usartTurn){
+			  serialSend(uart5,"adc value is %d voltage is %d.%d V \r\n",sharedAverageAdcValue,(int)voltageValue,getDecimalPoint(voltageValue));
+		  }
 		  adcEnableEOCInterrupt(adc1);
-		  //adcTurn = 1;
+		  adcTurn = 1;
 		  enableIRQ();
 	 	  }
 	  //disableIRQ();
@@ -242,8 +241,8 @@ void SystemClock_Config(void)
 
 float calculateADC(int adcValue){
 	float value;
-	value = adcValue * 373;
-	value = value / 500000;
+	value = adcValue * 2827;
+	value = value / 3785000;
 	return value;
 }
 void configureTimer3(){
@@ -268,25 +267,26 @@ void configureTimer3(){
 
 	  //to generate 2khz with 50% duty cycle
 	  timerWritePrescaler(timer3,0);
-	  timerWriteAutoReloadReg(timer3, 22500);
+	  timerWriteAutoReloadReg(timer3, 45000);
+	  timerWriteCapComReg3(timer3 , 22499);
 }
 
 void configureAdc1(){
 	  enableAdc1();
 	  //enable interrupt
-	  adcEnableEOCInterrupt(adc1);
+	  //adcEnableEOCInterrupt(adc1);
 	  adcSetScanMode(adc1,ENABLE_MODE);
 	  nvicEnableInterrupt(18);
-
 	  adcSetADCResolution(adc1,ADC_RES_12_BIT);
 	  adcSetRightDataAlignment(adc1);
-	  adcSetContinousConvertion(adc1);
+	  adcSetSingleConvertion(adc1);
+	  //adcSetContinousConvertion(adc1);
 	  adcSetSamplingTime(adc1,CHANNEL_1,ADC_SAMP_3_CYCLES);
 	  adcSetExternalTriggerRegularChannel(adc1,T_DETECTION_RISING);
 	  adcSetSingleSequenceRegister(adc1,CHANNEL_1,1);
 	  adcSetExternalEventSelectForRegularGroup(adc1,T3_TRGO);
 	  adcEnableADCConversion(adc1);
-	  adcSetStartRegularConversion(adc1);
+	  //adcSetStartRegularConversion(adc1);
 }
 
 void configureUart5(){

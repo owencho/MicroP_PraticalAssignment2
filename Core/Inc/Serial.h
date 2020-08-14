@@ -10,5 +10,6 @@
 #include "Usart.h"
 void freeMessage(char * msg);
 void serialSend(UsartRegs * usart,char *message,...);
+int getDecimalPoint(float value);
 void usartSendMessage(UsartRegs * usart,char *message);
 #endif /* INC_SERIAL_H_ */
