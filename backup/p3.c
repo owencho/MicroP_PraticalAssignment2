@@ -1,3 +1,4 @@
+
 /* USER CODE BEGIN Header */
 /**
   ******************************************************************************
@@ -60,9 +61,9 @@
 
 /* USER CODE BEGIN PV */
 volatile int sharedAverageAdcValue;
-int adcTurn;
-extern int usartTurn;
-volatile float voltageValue;
+volatile int adcTurn;
+extern volatile int usartTurn;
+float voltageValue;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -72,11 +73,12 @@ float calculateADC(int adcValue);
 void configureTimer3();
 void configureUart5();
 void configureAdc1();
+void configureGpio();
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-char *msgOut;
+
 /* USER CODE END 0 */
 
 /**
@@ -103,79 +105,36 @@ int main(void)
 
   /* USER CODE BEGIN SysInit */
   disableIRQ();
-  /*
-  enableGpio(PORT_B);
-  gpioSetMode(gpioB, PIN_6, GPIO_ALT);
-  gpioSetPinSpeed(gpioB,PIN_6,HIGH_SPEED);
-  gpioSetAlternateFunction(gpioB, PIN_6 ,AF2); //set PB6 as TIM4_CH1
-
-  gpioSetMode(gpioB, PIN_8, GPIO_ALT);
-  gpioSetPinSpeed(gpioB, PIN_8,HIGH_SPEED);
-  gpioSetAlternateFunction(gpioB, PIN_8 ,AF2); //set PB8 as TIM4_CH3
-
-  gpioSetMode(gpioB, PIN_0, GPIO_ALT);
-  gpioSetPinSpeed(gpioB, PIN_0,HIGH_SPEED);
-  gpioSetAlternateFunction(gpioB, PIN_0 ,AF2); //set PB0 as TIM3_CH4
-
-  gpioSetMode(gpioB, PIN_1, GPIO_ALT);
-  gpioSetPinSpeed(gpioB, PIN_1,HIGH_SPEED);
-  gpioSetAlternateFunction(gpioB, PIN_1 ,AF2); //set PB1 as TIM3_CH4
-
-  // set pin 1 as input of the signal
-  enableGpioA();
-  gpioSetMode(gpioA, PIN_1, GPIO_ANALOG);
-  gpioSetPinSpeed(gpioA,PIN_1,HIGH_SPEED);
-*/
-  enableUART5();
-  //pg 183 to enable uart clock
-
-  enableGpio(PORT_C);
-  gpioSetMode(gpioC, PIN_12, GPIO_ALT);  //set GpioC as alternate mode
-  gpioSetPinSpeed(gpioC,PIN_12,HIGH_SPEED);
-
-  enableGpio(PORT_D);
-  gpioSetMode(gpioD, PIN_2, GPIO_ALT);  //set GpioC as alternate mode
-  gpioSetPinSpeed(gpioD,PIN_2,HIGH_SPEED);
-
-
-  //set alternate function
-  gpioSetAlternateFunction(gpioC ,PIN_12 ,AF8); //set PC12 as USART5_TX
-  gpioSetAlternateFunction(gpioD ,PIN_2 ,AF8); //set PD2 as USART5_RX
-
- // configureTimer3();
-  //configureAdc1();
+  configureGpio();
+  configureTimer3();
+  configureAdc1();
   configureUart5();
-
+  adcTurn = 0;
+  usartTurn =0;
+  enableIRQ();
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
   /* USER CODE BEGIN 2 */
-  adcTurn = 0;
-  usartTurn =0;
-  enableIRQ();
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  if(!usartTurn){
-		  usartSend(uart5,'1');
-		  //serialSend(uart5,"H");
-	  }
-
-    /* USER CODE END WHILE */
-	  /*
+	  disableIRQ();
 	  if(!adcTurn){
-		  disableIRQ();
-		  voltageValue = calculateADC(sharedAverageAdcValue);
-		  //asprintf(&msgOut, "Voltage is %. 2f", voltageValue);
 
-		  //usartSend(uart5,msgOut);
+		  voltageValue = calculateADC(sharedAverageAdcValue);
+		  if(!usartTurn){
+			  serialSend(uart5,"adc value is %d voltage is %0.2f V \r\n",sharedAverageAdcValue,voltageValue);
+		  }
+		  adcEnableEOCInterrupt(adc1);
 		  adcTurn = 1;
-		  enableIRQ();
-	  }
-	*/
+	 	  }
+	  enableIRQ();
+    /* USER CODE END WHILE */
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -231,12 +190,30 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-
 float calculateADC(int adcValue){
 	float value;
-	value = adcValue * 373;
-	value = value / 500000;
+	value = adcValue * 2827;
+	value = value / 3785000;
 	return value;
+}
+void configureGpio(){
+	  // set pin 1 as input of the signal
+	  enableGpioA();
+	  gpioSetMode(gpioA, PIN_1, GPIO_ANALOG);
+	  gpioSetPinSpeed(gpioA,PIN_1,HIGH_SPEED);
+
+	  enableGpio(PORT_C);
+	  gpioSetMode(gpioC, PIN_12, GPIO_ALT);  //set GpioC as alternate mode
+	  gpioSetPinSpeed(gpioC,PIN_12,HIGH_SPEED);
+
+	  enableGpio(PORT_D);
+	  gpioSetMode(gpioD, PIN_2, GPIO_ALT);  //set GpioC as alternate mode
+	  gpioSetPinSpeed(gpioD,PIN_2,HIGH_SPEED);
+
+	  //set alternate function
+	  gpioSetAlternateFunction(gpioC ,PIN_12 ,AF8); //set PC12 as USART5_TX
+	  gpioSetAlternateFunction(gpioD ,PIN_2 ,AF8); //set PD2 as USART5_RX
+
 }
 void configureTimer3(){
 	  enableTimer3();
@@ -257,35 +234,42 @@ void configureTimer3(){
 
 	  timerSetCompareCaptureEnableRegister(timer3,(OC3_ENABLE|OC3_ACTIVELOW));
 
+	  /*
+	  //to generate 50hz with 50% duty cycle
+	  timerWritePrescaler(timer3,27);
+	  timerWriteAutoReloadReg(timer3, 65535);
+	  timerWriteCapComReg3(timer3 , 32767);
+	  */
 
 	  //to generate 2khz with 50% duty cycle
 	  timerWritePrescaler(timer3,0);
-	  timerWriteAutoReloadReg(timer3, 22500);
+	  timerWriteAutoReloadReg(timer3, 45000);
+	  timerWriteCapComReg3(timer3 , 22499);
+
 }
 
 void configureAdc1(){
 	  enableAdc1();
 	  //enable interrupt
-	  adcEnableEOCInterrupt(adc1);
+	  //adcEnableEOCInterrupt(adc1);
 	  adcSetScanMode(adc1,ENABLE_MODE);
 	  nvicEnableInterrupt(18);
-
 	  adcSetADCResolution(adc1,ADC_RES_12_BIT);
 	  adcSetRightDataAlignment(adc1);
-	  adcSetContinousConvertion(adc1);
+	  adcSetSingleConvertion(adc1);
+	  //adcSetContinousConvertion(adc1);
 	  adcSetSamplingTime(adc1,CHANNEL_1,ADC_SAMP_3_CYCLES);
 	  adcSetExternalTriggerRegularChannel(adc1,T_DETECTION_RISING);
 	  adcSetSingleSequenceRegister(adc1,CHANNEL_1,1);
 	  adcSetExternalEventSelectForRegularGroup(adc1,T3_TRGO);
 	  adcEnableADCConversion(adc1);
-	  adcSetStartRegularConversion(adc1);
+	  //adcSetStartRegularConversion(adc1);
 }
 
 void configureUart5(){
 	  enableUART5();
-	  //nvicEnableInterrupt(53);
-	 // usartEnableInterrupt(uart5,TRANS_COMPLETE);
-
+	  nvicEnableInterrupt(53);
+	  //usartEnableInterrupt(uart5,TRANS_COMPLETE);
 	  setUsartOversamplingMode(uart5,OVER_16);
 	  usartSetBaudRate(uart5,115200);
 	  setUsartWordLength(uart5,DATA_8_BITS);
@@ -293,7 +277,6 @@ void configureUart5(){
 	  setUsartParityMode(uart5,ODD_PARITY);
 	  usartSetStopBit(uart5,STOP_BIT_2);
 	  usartEnableTransmission(uart5);
-	  //usartEnableReceiver(uart5);
 	  enableUsart(uart5);
 }
 
