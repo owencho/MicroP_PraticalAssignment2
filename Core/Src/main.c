@@ -179,9 +179,9 @@ void SystemClock_Config(void)
 /* USER CODE BEGIN 4 */
 void configureTimer4(){
 	  enableTimer4();
-	  timerSetControlRegister(timer4,(ARR_ENABLE | TIMER_UP_COUNT |
+	  timerSetControlRegister(timer4,(ARR_DISABLE | TIMER_UP_COUNT |
 			  	  	  	  	  	  	  TIMER_ONE_PULSE_DISABLE |TIMER_COUNTER_ENABLE |
-									  T1_CH1_SELECT| MASTER_MODE_RESET|OC3_OUT_LOW));
+									  T1_CH1_SELECT| MASTER_MODE_RESET|OC3_OUT_HIGH));
 	  //ARR reg is buffered
 	  //Up count
 	  //one pulse mode disabled
@@ -214,7 +214,7 @@ void configureTimer3(){
 	  enableTimer3();
 	  timerSetControlRegister(timer3,(ARR_ENABLE | TIMER_UP_COUNT |
 			  	  	  	  	  	  	  TIMER_ONE_PULSE_DISABLE |TIMER_COUNTER_ENABLE |
-									  T1_CH1_SELECT| MASTER_MODE_COMP_OC4REF|OC4_OUT_LOW));
+									  T1_CH1_SELECT| MASTER_MODE_COMP_OC4REF|OC4_OUT_HIGH));
 	  //ARR reg is buffered
 	  //Up count
 	  //one pulse mode disabled
@@ -226,7 +226,7 @@ void configureTimer3(){
 	  timerSetCompareCaptureModeRegister(timer3,(CC4_OUTPUT |OC4_MODE_TOGGLE));
 	  // CC4 channel is configured as toggle mode
 
-	  timerSetCompareCaptureEnableRegister(timer3,(OC4_ENABLE|OC4_ACTIVELOW));
+	  timerSetCompareCaptureEnableRegister(timer3,(OC4_ENABLE|OC3_ACTIVEHIGH));
 
 
 	  //to generate 1khz with 50% duty cycle
