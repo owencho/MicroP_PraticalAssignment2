@@ -92,21 +92,21 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-  	  enableGpio(PORT_B);
-  	  gpioSetMode(gpioB, PIN_6, GPIO_ALT);
-  	  gpioSetPinSpeed(gpioB,PIN_6,HIGH_SPEED);
-  	  gpioSetAlternateFunction(gpioB, PIN_6 ,AF2); //set PB6 as TIM4_CH1
+  enableGpio(PORT_B);
+  gpioSetMode(gpioB, PIN_6, GPIO_ALT);
+  gpioSetPinSpeed(gpioB,PIN_6,HIGH_SPEED);
+  gpioSetAlternateFunction(gpioB, PIN_6 ,AF2); //set PB6 as TIM4_CH1
 
-	  gpioSetMode(gpioB, PIN_8, GPIO_ALT);
-	  gpioSetPinSpeed(gpioB, PIN_8,HIGH_SPEED);
-	  gpioSetAlternateFunction(gpioB, PIN_8 ,AF2); //set PB8 as TIM4_CH3
+  gpioSetMode(gpioB, PIN_8, GPIO_ALT);
+  gpioSetPinSpeed(gpioB, PIN_8,HIGH_SPEED);
+  gpioSetAlternateFunction(gpioB, PIN_8 ,AF2); //set PB8 as TIM4_CH3
 
-	  gpioSetMode(gpioB, PIN_1, GPIO_ALT);
-	  gpioSetPinSpeed(gpioB, PIN_1,HIGH_SPEED);
-	  gpioSetAlternateFunction(gpioB, PIN_1 ,AF2); //set PB1 as TIM3_CH4
+  gpioSetMode(gpioB, PIN_1, GPIO_ALT);
+  gpioSetPinSpeed(gpioB, PIN_1,HIGH_SPEED);
+  gpioSetAlternateFunction(gpioB, PIN_1 ,AF2); //set PB1 as TIM3_CH4
 
-	  configureTimer3();
-	  configureTimer4();
+  configureTimer3();
+  configureTimer4();
 
 
   /* USER CODE END SysInit */

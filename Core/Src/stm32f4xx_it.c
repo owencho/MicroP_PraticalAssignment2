@@ -43,7 +43,7 @@ extern char * messageToSend;
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
- 
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -74,7 +74,7 @@ void ADC_IRQHandler(void);
 /* USER CODE END EV */
 
 /******************************************************************************/
-/*           Cortex-M4 Processor Interruption and Exception Handlers          */ 
+/*           Cortex-M4 Processor Interruption and Exception Handlers          */
 /******************************************************************************/
 /**
   * @brief This function handles Non maskable interrupt.
@@ -210,6 +210,7 @@ void SysTick_Handler(void)
 /******************************************************************************/
 
 /* USER CODE BEGIN 1 */
+
 void UART5_IRQHandler(void){
 	if(usartTurn){
  		   if(messageToSend[charCount] != '\0'){
@@ -239,7 +240,6 @@ void ADC_IRQHandler(void){
 			adcValue = 0;
 		}
 	}
-
 }
 
 /* USER CODE END 1 */

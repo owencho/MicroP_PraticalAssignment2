@@ -125,7 +125,6 @@ int main(void)
   {
 	  disableIRQ();
 	  if(!adcTurn){
-
 		  voltageValue = calculateADC(sharedAverageAdcValue);
 		  if(!usartTurn){
 			  serialSend(uart5,"adc value is %d voltage is %0.2f V \r\n",sharedAverageAdcValue,voltageValue);
@@ -210,6 +209,11 @@ void configureGpio(){
 	  gpioSetMode(gpioD, PIN_2, GPIO_ALT);  //set GpioC as alternate mode
 	  gpioSetPinSpeed(gpioD,PIN_2,HIGH_SPEED);
 
+	  enableGpio(PORT_B);
+	  gpioSetMode(gpioB, PIN_0, GPIO_ALT);
+	  gpioSetPinSpeed(gpioB, PIN_0,HIGH_SPEED);
+	  gpioSetAlternateFunction(gpioB, PIN_0 ,AF2); //set PB1 as TIM3_CH4
+
 	  //set alternate function
 	  gpioSetAlternateFunction(gpioC ,PIN_12 ,AF8); //set PC12 as USART5_TX
 	  gpioSetAlternateFunction(gpioD ,PIN_2 ,AF8); //set PD2 as USART5_RX
@@ -243,33 +247,28 @@ void configureTimer3(){
 
 	  //to generate 2khz with 50% duty cycle
 	  timerWritePrescaler(timer3,0);
-	  timerWriteAutoReloadReg(timer3, 45000);
-	  timerWriteCapComReg3(timer3 , 22499);
+	  timerWriteAutoReloadReg(timer3, 22500);
+	  timerWriteCapComReg3(timer3 , 11250);
 
 }
 
 void configureAdc1(){
 	  enableAdc1();
-	  //enable interrupt
-	  //adcEnableEOCInterrupt(adc1);
 	  adcSetScanMode(adc1,ENABLE_MODE);
 	  nvicEnableInterrupt(18);
 	  adcSetADCResolution(adc1,ADC_RES_12_BIT);
 	  adcSetRightDataAlignment(adc1);
 	  adcSetSingleConvertion(adc1);
-	  //adcSetContinousConvertion(adc1);
 	  adcSetSamplingTime(adc1,CHANNEL_1,ADC_SAMP_3_CYCLES);
 	  adcSetExternalTriggerRegularChannel(adc1,T_DETECTION_RISING);
 	  adcSetSingleSequenceRegister(adc1,CHANNEL_1,1);
 	  adcSetExternalEventSelectForRegularGroup(adc1,T3_TRGO);
 	  adcEnableADCConversion(adc1);
-	  //adcSetStartRegularConversion(adc1);
 }
 
 void configureUart5(){
 	  enableUART5();
 	  nvicEnableInterrupt(53);
-	  //usartEnableInterrupt(uart5,TRANS_COMPLETE);
 	  setUsartOversamplingMode(uart5,OVER_16);
 	  usartSetBaudRate(uart5,115200);
 	  setUsartWordLength(uart5,DATA_8_BITS);

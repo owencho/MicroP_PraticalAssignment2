@@ -197,7 +197,7 @@ void configureTimer4(){
 
 	  //to generate PWM with 6khz with 75% duty cycle
 	  timerWritePrescaler(timer4,0);
-	  timerWriteAutoReloadReg(timer4, 15000);
+	  timerWriteAutoReloadReg(timer4, 14999);
 	  timerWriteCapComReg3(timer4 , 11250);
 }
 /* USER CODE END 4 */
