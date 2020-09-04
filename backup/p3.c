@@ -212,7 +212,7 @@ void configureGpio(){
 	  enableGpio(PORT_B);
 	  gpioSetMode(gpioB, PIN_0, GPIO_ALT);
 	  gpioSetPinSpeed(gpioB, PIN_0,HIGH_SPEED);
-	  gpioSetAlternateFunction(gpioB, PIN_0 ,AF2); //set PB1 as TIM3_CH4
+	  gpioSetAlternateFunction(gpioB, PIN_0 ,AF2); //set PB0 as TIM3_CH3
 
 	  //set alternate function
 	  gpioSetAlternateFunction(gpioC ,PIN_12 ,AF8); //set PC12 as USART5_TX
