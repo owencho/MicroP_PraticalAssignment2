@@ -29,7 +29,6 @@
 #include "Exti.h"
 #include "Rcc.h"
 #include "Timer.h"
-#include "TimerBase.h"
 #include"TimerMacro.h"
 #include "Common.h"
 /* USER CODE END Includes */
@@ -236,6 +235,3 @@ void assert_failed(uint8_t *file, uint32_t line)
 #endif /* USE_FULL_ASSERT */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
-
-
-

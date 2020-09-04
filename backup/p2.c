@@ -29,7 +29,6 @@
 #include "Exti.h"
 #include "Rcc.h"
 #include "Timer.h"
-#include "TimerBase.h"
 #include"TimerMacro.h"
 #include "Common.h"
 /* USER CODE END Includes */

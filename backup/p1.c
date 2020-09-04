@@ -29,7 +29,6 @@
 #include "Exti.h"
 #include "Rcc.h"
 #include "Timer.h"
-#include "TimerBase.h"
 #include"TimerMacro.h"
 #include "Common.h"
 /* USER CODE END Includes */
@@ -41,6 +40,10 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+volatile int sharedAverageAdcValue;
+int adcTurn;
+extern int usartTurn;
+volatile float voltageValue;
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -146,7 +149,7 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  /** Activate the Over-Drive mode 
+  /** Activate the Over-Drive mode
   */
   if (HAL_PWREx_EnableOverDrive() != HAL_OK)
   {
@@ -232,3 +235,5 @@ void assert_failed(uint8_t *file, uint32_t line)
 #endif /* USE_FULL_ASSERT */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+
+
