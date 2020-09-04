@@ -131,7 +131,7 @@ int main(void)
 		  }
 		  adcEnableEOCInterrupt(adc1);
 		  adcTurn = 1;
-	 	  }
+	  }
 	  enableIRQ();
     /* USER CODE END WHILE */
     /* USER CODE BEGIN 3 */
@@ -196,87 +196,87 @@ float calculateADC(int adcValue){
 	return value;
 }
 void configureGpio(){
-	  // set pin 1 as input of the signal
-	  enableGpioA();
-	  gpioSetMode(gpioA, PIN_1, GPIO_ANALOG);
-	  gpioSetPinSpeed(gpioA,PIN_1,HIGH_SPEED);
+	// set pin 1 as input of the signal
+	enableGpioA();
+	gpioSetMode(gpioA, PIN_1, GPIO_ANALOG);
+	gpioSetPinSpeed(gpioA,PIN_1,HIGH_SPEED);
 
-	  enableGpio(PORT_C);
-	  gpioSetMode(gpioC, PIN_12, GPIO_ALT);  //set GpioC as alternate mode
-	  gpioSetPinSpeed(gpioC,PIN_12,HIGH_SPEED);
+	enableGpio(PORT_C);
+	gpioSetMode(gpioC, PIN_12, GPIO_ALT);  //set GpioC as alternate mode
+	gpioSetPinSpeed(gpioC,PIN_12,HIGH_SPEED);
 
-	  enableGpio(PORT_D);
-	  gpioSetMode(gpioD, PIN_2, GPIO_ALT);  //set GpioC as alternate mode
-	  gpioSetPinSpeed(gpioD,PIN_2,HIGH_SPEED);
+	enableGpio(PORT_D);
+	gpioSetMode(gpioD, PIN_2, GPIO_ALT);  //set GpioC as alternate mode
+	gpioSetPinSpeed(gpioD,PIN_2,HIGH_SPEED);
 
-	  enableGpio(PORT_B);
-	  gpioSetMode(gpioB, PIN_0, GPIO_ALT);
-	  gpioSetPinSpeed(gpioB, PIN_0,HIGH_SPEED);
-	  gpioSetAlternateFunction(gpioB, PIN_0 ,AF2); //set PB0 as TIM3_CH3
+	enableGpio(PORT_B);
+	gpioSetMode(gpioB, PIN_0, GPIO_ALT);
+	gpioSetPinSpeed(gpioB, PIN_0,HIGH_SPEED);
+	gpioSetAlternateFunction(gpioB, PIN_0 ,AF2); //set PB0 as TIM3_CH3
 
-	  //set alternate function
-	  gpioSetAlternateFunction(gpioC ,PIN_12 ,AF8); //set PC12 as USART5_TX
-	  gpioSetAlternateFunction(gpioD ,PIN_2 ,AF8); //set PD2 as USART5_RX
+	//set alternate function
+	gpioSetAlternateFunction(gpioC ,PIN_12 ,AF8); //set PC12 as USART5_TX
+	gpioSetAlternateFunction(gpioD ,PIN_2 ,AF8); //set PD2 as USART5_RX
 
 }
 void configureTimer3(){
-	  enableTimer3();
-	  timerSetControlRegister(timer3,(ARR_ENABLE | TIMER_UP_COUNT |
-			  	  	  	  	  	  	  TIMER_ONE_PULSE_DISABLE |TIMER_COUNTER_ENABLE |
-									  T1_CH1_SELECT| MASTER_MODE_COMP_OC3REF|OC3_OUT_LOW));
-	  //ARR disable
-	  //ARR reg is buffered
-	  //Up count
-	  //one pulse mode disabled
-	  //counter enabled
-	  //CH1 is connected to T1
-	  // Master Mode is routed to Output 3
-	  timerSetSlaveMasterRegister(timer3,SLAVE_MODE| SMS_DISABLED | TRIGGER_FIL_T1);
-	  //slave mode disabled
-	  timerSetCompareCaptureModeRegister(timer3,(CC3_OUTPUT |OC3_MODE_TOGGLE));
-	  // CC3 channel is configured as toggle mode
+	enableTimer3();
+	timerSetControlRegister(timer3,(ARR_ENABLE | TIMER_UP_COUNT |
+								  TIMER_ONE_PULSE_DISABLE |TIMER_COUNTER_ENABLE |
+								  T1_CH1_SELECT| MASTER_MODE_COMP_OC3REF|OC3_OUT_LOW));
+	//ARR disable
+	//ARR reg is buffered
+	//Up count
+	//one pulse mode disabled
+	//counter enabled
+	//CH1 is connected to T1
+	// Master Mode is routed to Output 3
+	timerSetSlaveMasterRegister(timer3,SLAVE_MODE| SMS_DISABLED | TRIGGER_FIL_T1);
+	//slave mode disabled
+	timerSetCompareCaptureModeRegister(timer3,(CC3_OUTPUT |OC3_MODE_TOGGLE));
+	// CC3 channel is configured as toggle mode
 
-	  timerSetCompareCaptureEnableRegister(timer3,(OC3_ENABLE|OC3_ACTIVELOW));
+	timerSetCompareCaptureEnableRegister(timer3,(OC3_ENABLE|OC3_ACTIVELOW));
 
-	  /*
-	  //to generate 50hz with 50% duty cycle
-	  timerWritePrescaler(timer3,27);
-	  timerWriteAutoReloadReg(timer3, 65535);
-	  timerWriteCapComReg3(timer3 , 32767);
-	  */
+	/*
+	//to generate 50hz with 50% duty cycle
+	timerWritePrescaler(timer3,27);
+	timerWriteAutoReloadReg(timer3, 65535);
+	timerWriteCapComReg3(timer3 , 32767);
+	*/
 
-	  //to generate 2khz with 50% duty cycle
-	  timerWritePrescaler(timer3,0);
-	  timerWriteAutoReloadReg(timer3, 22500);
-	  timerWriteCapComReg3(timer3 , 11250);
+	//to generate 2khz with 50% duty cycle
+	timerWritePrescaler(timer3,0);
+	timerWriteAutoReloadReg(timer3, 22500);
+	timerWriteCapComReg3(timer3 , 11250);
 
 }
 
 void configureAdc1(){
-	  enableAdc1();
-	  adcSetScanMode(adc1,ENABLE_MODE);
-	  nvicEnableInterrupt(18);
-	  adcSetADCResolution(adc1,ADC_RES_12_BIT);
-	  adcSetRightDataAlignment(adc1);
-	  adcSetSingleConvertion(adc1);
-	  adcSetSamplingTime(adc1,CHANNEL_1,ADC_SAMP_3_CYCLES);
-	  adcSetExternalTriggerRegularChannel(adc1,T_DETECTION_RISING);
-	  adcSetSingleSequenceRegister(adc1,CHANNEL_1,1);
-	  adcSetExternalEventSelectForRegularGroup(adc1,T3_TRGO);
-	  adcEnableADCConversion(adc1);
+	enableAdc1();
+	adcSetScanMode(adc1,ENABLE_MODE);
+	nvicEnableInterrupt(18);
+	adcSetADCResolution(adc1,ADC_RES_12_BIT);
+	adcSetRightDataAlignment(adc1);
+	adcSetSingleConvertion(adc1);
+	adcSetSamplingTime(adc1,CHANNEL_1,ADC_SAMP_3_CYCLES);
+	adcSetExternalTriggerRegularChannel(adc1,T_DETECTION_RISING);
+	adcSetSingleSequenceRegister(adc1,CHANNEL_1,1);
+	adcSetExternalEventSelectForRegularGroup(adc1,T3_TRGO);
+	adcEnableADCConversion(adc1);
 }
 
 void configureUart5(){
-	  enableUART5();
-	  nvicEnableInterrupt(53);
-	  setUsartOversamplingMode(uart5,OVER_16);
-	  usartSetBaudRate(uart5,115200);
-	  setUsartWordLength(uart5,DATA_8_BITS);
-	  usartEnableParityControl(uart5);
-	  setUsartParityMode(uart5,ODD_PARITY);
-	  usartSetStopBit(uart5,STOP_BIT_2);
-	  usartEnableTransmission(uart5);
-	  enableUsart(uart5);
+	enableUART5();
+	nvicEnableInterrupt(53);
+	setUsartOversamplingMode(uart5,OVER_16);
+	usartSetBaudRate(uart5,115200);
+	setUsartWordLength(uart5,DATA_8_BITS);
+	usartEnableParityControl(uart5);
+	setUsartParityMode(uart5,ODD_PARITY);
+	usartSetStopBit(uart5,STOP_BIT_2);
+	usartEnableTransmission(uart5);
+	enableUsart(uart5);
 }
 
 /* USER CODE END 4 */

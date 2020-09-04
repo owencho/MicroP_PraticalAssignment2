@@ -178,61 +178,61 @@ void SystemClock_Config(void)
 
 /* USER CODE BEGIN 4 */
 void configureTimer4(){
-	  enableTimer4();
-	  timerSetControlRegister(timer4,(ARR_DISABLE | TIMER_UP_COUNT |
-			  	  	  	  	  	  	  TIMER_ONE_PULSE_DISABLE |TIMER_COUNTER_ENABLE |
-									  T1_CH1_SELECT| MASTER_MODE_RESET|OC3_OUT_HIGH));
-	  //ARR reg is buffered
-	  //Up count
-	  //one pulse mode disabled
-	  //counter enabled
-	  //CH1 is connected to T1
-	  // Master Mode Reset
-	  timerSetSlaveMasterRegister(timer4,SLAVE_MODE| SMS_GATED_M | TRIGGER_FIL_T1);
-	  //Trigger was selected TI1FP1
-	  //Slave mode selected as gated mode
-	  //slave mode was triggered on t1
-	  timerSetCompareCaptureModeRegister(timer4,(CC1_INPUT_IC1_MAP_TI1 | IC1_NO_PRESCALE |
-			  	  	  	  	  	  	  	  	  	  IC1_NO_FILER| CC3_OUTPUT |OC3_MODE_PWM_M1|OC3_FAST_ENABLE));
-	  // CC1 channel is configured as input, IC1 is mapped on TI1
-	  // IC1 no prescaler
-	  // IC1 no filter
-	  // CC3 channel is configured as PWM mode 1 output
-	  timerSetCompareCaptureEnableRegister(timer4,(CC1_CAPTURE_ENABLED|CC1_CAP_FALLING_EDGE|
-			  	  	  	  	  	  	  	  	  	   OC3_ENABLE|OC3_ACTIVEHIGH));
-	  //capture enabled for CH1
-	  // trigger on falling edge
-	  //output for CH3
+	enableTimer4();
+	timerSetControlRegister(timer4,(ARR_DISABLE | TIMER_UP_COUNT |
+								  TIMER_ONE_PULSE_DISABLE |TIMER_COUNTER_ENABLE |
+								  T1_CH1_SELECT| MASTER_MODE_RESET|OC3_OUT_HIGH));
+	//ARR reg is buffered
+	//Up count
+	//one pulse mode disabled
+	//counter enabled
+	//CH1 is connected to T1
+	// Master Mode Reset
+	timerSetSlaveMasterRegister(timer4,SLAVE_MODE| SMS_GATED_M | TRIGGER_FIL_T1);
+	//Trigger was selected TI1FP1
+	//Slave mode selected as gated mode
+	//slave mode was triggered on t1
+	timerSetCompareCaptureModeRegister(timer4,(CC1_INPUT_IC1_MAP_TI1 | IC1_NO_PRESCALE |
+											  IC1_NO_FILER| CC3_OUTPUT |OC3_MODE_PWM_M1|OC3_FAST_ENABLE));
+	// CC1 channel is configured as input, IC1 is mapped on TI1
+	// IC1 no prescaler
+	// IC1 no filter
+	// CC3 channel is configured as PWM mode 1 output
+	timerSetCompareCaptureEnableRegister(timer4,(CC1_CAPTURE_ENABLED|CC1_CAP_FALLING_EDGE|
+											   OC3_ENABLE|OC3_ACTIVEHIGH));
+	//capture enabled for CH1
+	// trigger on falling edge
+	//output for CH3
 
-	  //to generate PWM with 6khz with 75% duty cycle
-	  timerWritePrescaler(timer4,0);
-	  timerWriteAutoReloadReg(timer4, 14999);
-	  timerWriteCapComReg3(timer4 , 11250);
+	//to generate PWM with 6khz with 75% duty cycle
+	timerWritePrescaler(timer4,0);
+	timerWriteAutoReloadReg(timer4, 14999);
+	timerWriteCapComReg3(timer4 , 11250);
 }
 
 void configureTimer3(){
-	  enableTimer3();
-	  timerSetControlRegister(timer3,(ARR_ENABLE | TIMER_UP_COUNT |
-			  	  	  	  	  	  	  TIMER_ONE_PULSE_DISABLE |TIMER_COUNTER_ENABLE |
-									  T1_CH1_SELECT| MASTER_MODE_COMP_OC4REF|OC4_OUT_HIGH));
-	  //ARR reg is buffered
-	  //Up count
-	  //one pulse mode disabled
-	  //counter enabled
-	  //CH1 is connected to T1
-	  // Master Mode is routed to Output 4
-	  timerSetSlaveMasterRegister(timer3,SLAVE_MODE| SMS_DISABLED | TRIGGER_FIL_T1);
-	  //slave mode disabled
-	  timerSetCompareCaptureModeRegister(timer3,(CC4_OUTPUT |OC4_MODE_TOGGLE));
-	  // CC4 channel is configured as toggle mode
+	enableTimer3();
+	timerSetControlRegister(timer3,(ARR_ENABLE | TIMER_UP_COUNT |
+								  TIMER_ONE_PULSE_DISABLE |TIMER_COUNTER_ENABLE |
+								  T1_CH1_SELECT| MASTER_MODE_COMP_OC4REF|OC4_OUT_HIGH));
+	//ARR reg is buffered
+	//Up count
+	//one pulse mode disabled
+	//counter enabled
+	//CH1 is connected to T1
+	// Master Mode is routed to Output 4
+	timerSetSlaveMasterRegister(timer3,SLAVE_MODE| SMS_DISABLED | TRIGGER_FIL_T1);
+	//slave mode disabled
+	timerSetCompareCaptureModeRegister(timer3,(CC4_OUTPUT |OC4_MODE_TOGGLE));
+	// CC4 channel is configured as toggle mode
 
-	  timerSetCompareCaptureEnableRegister(timer3,(OC4_ENABLE|OC3_ACTIVEHIGH));
+	timerSetCompareCaptureEnableRegister(timer3,(OC4_ENABLE|OC3_ACTIVEHIGH));
 
 
-	  //to generate 1khz with 50% duty cycle
-	  timerWritePrescaler(timer3,0);
-	  timerWriteAutoReloadReg(timer3, 44999);
-	  timerWriteCapComReg4(timer3 , 22499);
+	//to generate 1khz with 50% duty cycle
+	timerWritePrescaler(timer3,0);
+	timerWriteAutoReloadReg(timer3, 44999);
+	timerWriteCapComReg4(timer3 , 22499);
 }
 
 /* USER CODE END 4 */

@@ -88,16 +88,16 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-  	  enableGpio(PORT_B);
-  	  gpioSetMode(gpioB, PIN_6, GPIO_ALT);
-  	  gpioSetPinSpeed(gpioB,PIN_6,HIGH_SPEED);
-  	  gpioSetAlternateFunction(gpioB, PIN_6 ,AF2); //set PB6 as TIM4_CH1
+	enableGpio(PORT_B);
+	gpioSetMode(gpioB, PIN_6, GPIO_ALT);
+	gpioSetPinSpeed(gpioB,PIN_6,HIGH_SPEED);
+	gpioSetAlternateFunction(gpioB, PIN_6 ,AF2); //set PB6 as TIM4_CH1
 
-	  gpioSetMode(gpioB, PIN_8, GPIO_ALT);
-	  gpioSetPinSpeed(gpioB, PIN_8,HIGH_SPEED);
-	  gpioSetAlternateFunction(gpioB, PIN_8 ,AF2); //set PB8 as TIM4_CH3
+	gpioSetMode(gpioB, PIN_8, GPIO_ALT);
+	gpioSetPinSpeed(gpioB, PIN_8,HIGH_SPEED);
+	gpioSetAlternateFunction(gpioB, PIN_8 ,AF2); //set PB8 as TIM4_CH3
 
-	  configureTimer4();
+	configureTimer4();
 
 
   /* USER CODE END SysInit */
@@ -169,36 +169,36 @@ void SystemClock_Config(void)
 
 /* USER CODE BEGIN 4 */
 void configureTimer4(){
-	  enableTimer4();
-	  timerSetControlRegister(timer4,(ARR_ENABLE | TIMER_UP_COUNT |
-			  	  	  	  	  	  	  TIMER_ONE_PULSE_DISABLE |TIMER_COUNTER_ENABLE |
-									  T1_CH1_SELECT| MASTER_MODE_RESET|OC3_OUT_LOW));
-	  //ARR reg is buffered
-	  //Up count
-	  //one pulse mode disabled
-	  //counter enabled
-	  //CH1 is connected to T1
-	  // Master Mode Reset
-	  timerSetSlaveMasterRegister(timer4,SLAVE_MODE| SMS_GATED_M | TRIGGER_FIL_T1);
-	  //Trigger was selected TI1FP1
-	  //Slave mode selected as gated mode
-	  //slave mode was triggered on t1
-	  timerSetCompareCaptureModeRegister(timer4,(CC1_INPUT_IC1_MAP_TI1 | IC1_NO_PRESCALE |
-			  	  	  	  	  	  	  	  	  	  IC1_NO_FILER| CC3_OUTPUT |OC3_MODE_PWM_M1|OC3_FAST_ENABLE));
-	  // CC1 channel is configured as input, IC1 is mapped on TI1
-	  // IC1 no prescaler
-	  // IC1 no filter
-	  // CC3 channel is configured as PWM mode 1 output
-	  timerSetCompareCaptureEnableRegister(timer4,(CC1_CAPTURE_ENABLED|CC1_CAP_FALLING_EDGE|
-			  	  	  	  	  	  	  	  	  	   OC3_ENABLE|OC3_ACTIVEHIGH));
-	  //capture enabled for CH1
-	  // trigger on falling edge
-	  //output for CH3
+	enableTimer4();
+	timerSetControlRegister(timer4,(ARR_ENABLE | TIMER_UP_COUNT |
+								  TIMER_ONE_PULSE_DISABLE |TIMER_COUNTER_ENABLE |
+								  T1_CH1_SELECT| MASTER_MODE_RESET|OC3_OUT_LOW));
+	//ARR reg is buffered
+	//Up count
+	//one pulse mode disabled
+	//counter enabled
+	//CH1 is connected to T1
+	// Master Mode Reset
+	timerSetSlaveMasterRegister(timer4,SLAVE_MODE| SMS_GATED_M | TRIGGER_FIL_T1);
+	//Trigger was selected TI1FP1
+	//Slave mode selected as gated mode
+	//slave mode was triggered on t1
+	timerSetCompareCaptureModeRegister(timer4,(CC1_INPUT_IC1_MAP_TI1 | IC1_NO_PRESCALE |
+											  IC1_NO_FILER| CC3_OUTPUT |OC3_MODE_PWM_M1|OC3_FAST_ENABLE));
+	// CC1 channel is configured as input, IC1 is mapped on TI1
+	// IC1 no prescaler
+	// IC1 no filter
+	// CC3 channel is configured as PWM mode 1 output
+	timerSetCompareCaptureEnableRegister(timer4,(CC1_CAPTURE_ENABLED|CC1_CAP_FALLING_EDGE|
+											   OC3_ENABLE|OC3_ACTIVEHIGH));
+	//capture enabled for CH1
+	// trigger on falling edge
+	//output for CH3
 
-	  //to generate PWM with 6khz with 75% duty cycle
-	  timerWritePrescaler(timer4,0);
-	  timerWriteAutoReloadReg(timer4, 14999);
-	  timerWriteCapComReg3(timer4 , 11250);
+	//to generate PWM with 6khz with 75% duty cycle
+	timerWritePrescaler(timer4,0);
+	timerWriteAutoReloadReg(timer4, 14999);
+	timerWriteCapComReg3(timer4 , 11250);
 }
 /* USER CODE END 4 */
 

@@ -20,10 +20,7 @@ void freeMessage(char * msg){
     if(msg)
         free(msg);
 }
-int getDecimalPoint(float value){
-	int decimal = (int)value;
-	return (value-decimal)*100;
-}
+
 void serialSend(UsartRegs * usart,char *message,...){
 	disableIRQ();
     int actualLength;
